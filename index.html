@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>竞足预测汇总</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>竞足预测汇总 <span class="sub">每日扫盘 · 模型对比 · 赛果复盘</span></h1>
+  <div class="date-pick">
+    <label for="dateSel">日期</label>
+    <select id="dateSel"></select>
+  </div>
+  <div class="user-slot" id="userSlot">
+    <span id="userPhone" class="user-phone"></span>
+    <button type="button" id="btnLogout" class="bar-btn logout-btn">退出</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="summary"><span class="tab-txt">每日汇总</span></button>
+  <button class="tab" data-tab="compare"><span class="tab-txt">模型对比</span></button>
+  <button class="tab" data-tab="bets"><span class="tab-txt">投注方案</span></button>
+  <button class="tab" data-tab="stats"><span class="tab-txt">历史统计</span></button>
+</nav>
+
+<div class="export-bar">
+  <button id="btnSync" class="sync-btn">↻ 更新比赛数据</button>
+  <span id="syncMsg" class="bar-hint"></span>
+  <span style="flex:1"></span>
+  <button id="btnExpExcel">导出 Excel</button>
+  <button id="btnExpImg">导出图片</button>
+</div>
+
+<main>
+  <section id="tab-summary" class="panel active">
+    <div class="board-head">
+      <span class="board-title">本期扫盘</span>
+      <span id="boardDate"></span>
+      <span id="boardCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table id="summaryTable" class="board">
+        <colgroup><col><col><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr>
+            <th>编号</th><th>时间</th><th>赛事</th><th>主队VS客队</th>
+            <th>胜平负</th><th>总进球</th><th>半全场</th><th>比分</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-compare" class="panel">
+    <div class="compare-bar">
+      <button id="btnAddModel" class="bar-btn primary">＋ 添加模型</button>
+    </div>
+    <div class="table-wrap">
+      <table id="compareTable" class="board compare">
+        <colgroup></colgroup>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-bets" class="panel">
+    <div class="board-head">
+      <span class="board-title">投注方案</span>
+      <span class="badge">2元/注 · 官方实时赔率 · 开奖自动结算</span>
+    </div>
+    <div class="bet-wrap">
+      <div class="card-sec">
+        <div class="bp-t">选择比赛与玩法</div>
+        <select id="betMatchSel" class="bet-sel"></select>
+        <div id="betChips"></div>
+      </div>
+      <div class="card-sec">
+        <div class="bp-t">投注单</div>
+        <div id="slipLegs" class="slip-legs"></div>
+        <div class="mode-row" id="modeRow"></div>
+        <div class="mult-row">
+          <span class="bp-l">倍数</span>
+          <button type="button" id="multMinus" class="mult-btn">−</button>
+          <input id="multInput" type="text" inputmode="numeric" value="1">
+          <button type="button" id="multPlus" class="mult-btn">＋</button>
+          <span class="bp-l">倍</span>
+        </div>
+        <div class="bet-sum" id="betSum"></div>
+        <div class="bet-save">
+          <button type="button" id="betSave" class="bar-btn primary">保存方案</button>
+          <button type="button" id="betReset" class="bar-btn">清空投注单</button>
+        </div>
+      </div>
+    </div>
+    <h3>我的方案</h3>
+    <div class="table-wrap">
+      <table id="betsTable" class="board bets">
+        <colgroup><col><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr><th>时间</th><th>方案内容</th><th>过关方式</th><th>注数</th><th>金额</th><th>理论最高</th><th>状态</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-stats" class="panel">
+    <div class="cards" id="statCards"></div>
+    <h3>各模型 / 我的预测 命中率（已开奖场次）</h3>
+    <div class="table-wrap">
+      <table id="srcTable" class="board stats">
+        <colgroup><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr><th>来源</th><th>预测场次</th><th>胜平负命中</th><th>总进球命中</th><th>半全场命中</th><th>比分命中</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>每日总结（我的预测命中率）</h3>
+    <div class="table-wrap">
+      <table id="dayTable" class="board stats">
+        <colgroup><col><col><col><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr><th>日期</th><th>场次</th><th>已开奖</th><th>胜平负</th><th>总进球</th><th>半全场</th><th>比分</th><th>综合命中率</th><th>状态</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="dlgEdit" class="dlg-mask hidden">
+  <div class="dlg">
+    <div class="dlg-head">
+      <div class="dlg-id">
+        <b id="dlgTitle"></b>
+        <div class="dlg-sub" id="dlgSub"></div>
+      </div>
+      <button type="button" id="dlgClose" class="dlg-x">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="ep">
+        <div class="ep-t">胜平负</div>
+        <div class="chips" data-k="wdl"></div>
+      </div>
+      <div class="ep">
+        <div class="ep-t">让球胜平负<span class="ep-d" id="rqNumTxt">（0）</span></div>
+        <div class="chips" data-k="rq"></div>
+      </div>
+      <div class="ep">
+        <div class="ep-t">总进球</div>
+        <div class="chips" data-k="tg"></div>
+      </div>
+      <div class="ep">
+        <div class="ep-t">半全场<span class="ep-d">（前字=半场，后字=全场）</span></div>
+        <div class="chips hf-grid" data-k="hf"></div>
+      </div>
+      <div class="ep">
+        <div class="ep-t">比分<span class="ep-d">（可多选）</span></div>
+        <div class="chips sc-grid" data-k="sc"></div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" id="dlgClear" class="bar-btn danger">清空该场预测</button>
+      <span style="flex:1"></span>
+      <button type="button" id="dlgCancel" class="bar-btn">取消</button>
+      <button type="button" id="dlgSave" class="bar-btn primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="loginMask" class="login-mask">
+  <div class="login-card">
+    <div class="login-head">
+      <div class="login-logo">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="#fff" stroke="#0f172a" stroke-width="1.4"/>
+          <path d="M16 7 L19.5 10 L18 14.5 L14 14.5 L12.5 10 Z" fill="#0f172a"/>
+          <path d="M22 11 L25 13 L23.5 17.5 L19.5 17 L21 13 Z" fill="#0f172a"/>
+          <path d="M10 11 L7 13 L8.5 17.5 L12.5 17 L11 13 Z" fill="#0f172a"/>
+          <path d="M16 18 L19.5 18.5 L20.5 23 L16 25 L11.5 23 L12.5 18.5 Z" fill="#0f172a"/>
+          <path d="M22 19 L25 21 L23 24.5 L20 23 Z" fill="#0f172a"/>
+          <path d="M10 19 L7 21 L9 24.5 L12 23 Z" fill="#0f172a"/>
+        </svg>
+      </div>
+      <div class="login-title">
+        <b>竞足预测汇总</b>
+        <span>每日扫盘 · 模型对比 · 赛果复盘</span>
+      </div>
+    </div>
+    <div class="login-body">
+      <div class="login-field">
+        <span class="login-ico">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path fill="#64748b" d="M19 17v-2c0-1.1-.9-2-2-2h-1v-2c0-2.21-1.79-4-4-4S8 8.79 8 11v2H7c-1.1 0-2 .9-2 2v2h14zM12 5c3.31 0 6 2.69 6 6v2h-2v-2c0-2.21-1.79-4-4-4s-4 1.79-4 4v2H6v-2c0-3.31 2.69-6 6-6z"/>
+          </svg>
+        </span>
+        <input id="loginPhone" class="ui-input login-input" type="tel" placeholder="手机号" maxlength="11" inputmode="numeric" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <span class="login-ico">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path fill="#64748b" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 3c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+          </svg>
+        </span>
+        <input id="loginPass" class="ui-input login-input" type="password" placeholder="密码（6-20位）" maxlength="20" autocomplete="current-password">
+      </div>
+      <label class="login-mode"><input type="checkbox" id="isRegister"> 注册新账号</label>
+    </div>
+    <div class="login-foot">
+      <button type="button" id="btnLoginSubmit" class="bar-btn primary login-submit">登录</button>
+      <div class="login-tip">未注册请先勾选「注册新账号」</div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
